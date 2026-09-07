@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Kuis HOTS: Beriman kepada Hari Akhir (40 Soal)</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            background-color: #e0e7ff;
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .timer-badge {
+            background-color: #fef3c7;
+            color: #b45309;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background-color: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text);
+        }
+
+        .option-btn:hover:not([disabled]) {
+            border-color: var(--primary);
+            background-color: #f0fdf4;
+        }
+
+        .option-btn.correct {
+            background-color: #d1fae5 !important;
+            border-color: var(--success) !important;
+            color: #065f46;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #fee2e2 !important;
+            border-color: var(--danger) !important;
+            color: #991b1b;
+        }
+
+        .explanation-box {
+            background-color: #eff6ff;
+            border-left: 4px solid var(--primary);
+            padding: 15px 18px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #1e40af;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .result-screen {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background-color: #e0e7ff;
+            color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px auto;
+        }
+
+        .review-item {
+            text-align: left;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <!-- Start Screen -->
+    <div id="start-screen" class="result-screen">
+        <h1>🎮 Game Kuis HOTS: Hari Akhir</h1>
+        <p>Uji pemahaman mendalammu mengenai materi <b>Beriman kepada Hari Akhir (Fase D)</b>.</p>
+        <p>📝 Total: <b>40 Soal HOTS</b> | ⏱️ <b>Waktu:</b> 60 detik/soal | 💡 <b>Pembahasan:</b> Ada</p>
+        <br>
+        <button class="btn" onclick="startQuiz()">Mulai Kuis 40 Soal</button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="hide">
+        <div class="header">
+            <span class="badge" id="question-number">Soal 1 / 40</span>
+            <span class="timer-badge">⏳ <span id="time-left">60</span>s</span>
+            <span class="badge" id="score-count">Skor: 0</span>
+        </div>
+        <div class="question-text" id="question-text">Teks pertanyaan...</div>
+        <div class="options-grid" id="options-container"></div>
+        <div class="explanation-box hide" id="explanation-box">
+            <b>💡 Pembahasan:</b> <span id="explanation-text"></span>
+        </div>
+        <div class="footer">
+            <span></span>
+            <button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Soal Berikutnya</button>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="result-screen hide">
+        <h2>🎉 Kuis Selesai!</h2>
+        <p>Capaian Nilai Akhir Kamu:</p>
+        <div class="score-circle" id="final-score">0</div>
+        <p id="result-message"></p>
+        <br>
+        <button class="btn" onclick="toggleReview()">📜 Lihat Pembahasan Lengkap</button>
+        <button class="btn" style="background-color:#10b981;" onclick="restartQuiz()">🔄 Coba Lagi</button>
+        <div id="review-container" class="hide" style="margin-top:25px;"></div>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    {
+        q: "1. Banyak orang sibuk mengumpulkan kekayaan dunia hingga mengabaikan keadilan sosial. Jika dianalisis dari makna hakiki Hari Akhir, kesalahan paling mendasar dari sikap hidup tersebut adalah...",
+        options: [
+            "Mengabaikan kepastian pertanggungjawaban seluruh perbuatan manusia pada kehidupan akhirat.",
+            "Menolak kenyataan bahwa harta kekayaan dunia tidak dapat diwariskan kepada keturunan.",
+            "Menerima prinsip bahwa kenikmatan duniawi hanya dapat dinikmati oleh sebagian orang.",
+            "Meyakini bahwa kehidupan dunia merupakan satu-satunya sarana mencapai kebahagiaan sejati."
+        ],
+        answer: 0,
+        explanation: "Hakikat iman kepada Hari Akhir adalah menyadari bahwa seluruh perbuatan duniawi akan dimintai pertanggungjawaban di akhirat."
+    },
+    {
+        q: "2. Seseorang meyakini adanya kebangkitan setelah kematian, namun ragu bahwa seluruh manusia dari zaman purba hingga akhir zaman dapat dibangkitkan kembali. Sikap ini bertentangan dengan kandungan Q.S. Al-Hajj ayat 7 karena menegaskan bahwa...",
+        options: [
+            "Hari kiamat pasti datang dan Allah pasti membangkitkan siapa pun di dalam kubur.",
+            "Kematian manusia merupakan akhir dari seluruh rangkaian siklus kehidupan di alam semesta.",
+            "Seluruh amal perbuatan manusia di dunia akan dibalas secara instan tanpa ada penundaan.",
+            "Kebangkitan manusia dari alam kubur hanya dialami oleh orang yang beriman dan bertakwa."
+        ],
+        answer: 0,
+        explanation: "Q.S. Al-Hajj ayat 7 menegaskan bahwa Allah Swt. pasti membangkitkan siapa pun yang berada di dalam kubur."
+    },
+    {
+        q: "3. Dalam transaksi bisnis, seseorang melakukan manipulasi data kecil yang tidak diketahui mitra bisnisnya. Berdasarkan Q.S. Az-Zalzalah ayat 7-8, persepsi yang salah jika pelaku menganggap tindakannya aman adalah...",
+        options: [
+            "Perbuatan kejahatan sekecil zarrah pun tetap akan ditunjukkan balasannya oleh Allah Swt.",
+            "Manipulasi data kecil dapat dihapuskan secara otomatis dengan cara melakukan sedekah harian.",
+            "Kejahatan yang tidak merugikan orang banyak secara langsung tidak akan dicatat oleh malaikat.",
+            "Balasan kejahatan di akhirat hanya berlaku untuk tindakan kriminal yang berkategori sangat berat."
+        ],
+        answer: 0,
+        explanation: "Q.S. Az-Zalzalah ayat 7-8 menegaskan setiap kebaikan/kejahatan sekecil zarrah tetap mendapat balasan."
+    },
+    {
+        q: "4. Hadis riwayat Muslim menempatkan iman kepada Hari Akhir dan iman kepada takdir dalam satu rangkaian rukun iman. Hubungan korelatif antara kedua rukun iman ini dalam membentuk mentalitas seorang Muslim adalah...",
+        options: [
+            "Mendorong keikhlasan menerima takdir sambil tetap berusaha memperbanyak bekal untuk kehidupan akhirat.",
+            "Menyebabkan manusia bersikap pasrah tanpa perlu berusaha karena masa depan sudah ditentukan penuh.",
+            "Memfokuskan seluruh perhatian pada takdir duniawi tanpa perlu memikirkan konsekuensi kehidupan akhirat.",
+            "Menghilangkan kekhawatiran terhadap dosa karena takdir manusia sudah dituliskan sebelum diciptakan."
+        ],
+        answer: 0,
+        explanation: "Iman kepada takdir dan hari akhir memadukan sikap ikhlas atas takdir dan semangat mengumpulkan bekal akhirat."
+    },
+    {
+        q: "5. Hari Akhir memiliki nama lain seperti Yaumul Hisab. Jika seorang siswa menyadari konsekuensi dari nama Yaumul Hisab dalam kehidupan sekolah harian, tindakan yang paling mencerminkan kesadaran tersebut adalah...",
+        options: [
+            "Memeriksa dan memperhitungkan setiap perkataan serta perbuatan agar selalu berada dalam kebaikan.",
+            "Menghitung jumlah pahala harian secara matematis untuk memastikan kelayakan masuk ke surga.",
+            "Membandingkan catatan amalan kebaikan pribadi dengan amalan kebaikan milik teman di kelas.",
+            "Menfokuskan diri pada perhitungan nilai akademik agar mendapatkan peringkat tertinggi di sekolah."
+        ],
+        answer: 0,
+        explanation: "Yaumul Hisab berarti Hari Perhitungan, mendorong seseorang selalu mawas diri terhadap perilakunya."
+    },
+    {
+        q: "6. Q.S. Al-Hajj ayat 7 menggunakan frasa 'la raiba fiha' (tidak ada keraguan padanya). Dampak psikologis-spiritual utama dari keyakinan mutlak tanpa ragu terhadap Hari Kiamat bagi seorang pelajar adalah...",
+        options: [
+            "Memiliki keteguhan mental dan orientasi hidup yang jelas berlandaskan nilai-nilai keimanan sejati.",
+            "Merasa cemas secara berlebihan sehingga menghentikan seluruh aktivitas belajar di sekolah harian.",
+            "Membatasi pergaulan sosial hanya dengan orang yang memiliki keyakinan agama yang sama.",
+            "Menganggap seluruh kesenangan duniawi sebagai hal yang haram untuk dinikmati dalam kehidupan."
+        ],
+        answer: 0,
+        explanation: "Keyakinan tanpa ragu membentuk fondasi orientasi hidup yang kokoh dan tidak mudah terombang-ambing."
+    },
+    {
+        q: "7. Seorang pebisnis selalu menepati janji dan memberikan takaran yang adil karena meyakini Yaumud Din (Hari Pembalasan). Hubungan antara nama Hari Akhir tersebut dengan perilaku pebisnis adalah...",
+        options: [
+            "Kesadaran bahwa setiap keputusan muamalah akan mendapatkan pembalasan yang setimpal di akhirat.",
+            "Harapan agar bisnisnya mendapatkan keuntungan finansial yang berlipat ganda di dunia fana.",
+            "Keinginan untuk mendapatkan pujian dari masyarakat sebagai pebisnis yang jujur dan berintegritas.",
+            "Rasa takut akan hilangnya kepercayaan pelanggan yang dapat menyebabkan kebangkrutan usaha dagang."
+        ],
+        answer: 0,
+        explanation: "Yaumud Din menekankan bahwa pembalasan agama/amal di akhirat mendasari kejujuran berbisnis."
+    },
+    {
+        q: "8. Dalam Q.S. Az-Zalzalah ayat 7-8, Allah Swt. menggunakan kata 'zarrah' untuk menggambarkan ukuran amalan. Pelajaran moral-etis paling mendalam dari penggunaan kata tersebut dalam era digital saat ini adalah...",
+        options: [
+            "Unggahan atau komentar sekecil apa pun di media sosial tetap memiliki konsekuensi balasan.",
+            "Dosa di dunia digital dapat disamarkan sehingga tidak akan diperhitungkan dalam proses hisab.",
+            "Kebaikan di internet hanya bernilai pahala jika mendapatkan tanggapan positif dari netizen.",
+            "Ukuran amalan digital ditentukan oleh banyaknya jumlah pengikut dan penyebaran konten online."
+        ],
+        answer: 0,
+        explanation: "Kata zarrah mengingatkan bahwa sekecil apa pun rekam jejak aktivitas digital tetap ada perhitungannya."
+    },
+    {
+        q: "9. Mengapa iman kepada Hari Akhir ditempatkan sebagai Rukun Iman kelima, tepat setelah iman kepada Rasul-rasul Allah? Analisis hubungan konseptual yang tepat adalah...",
+        options: [
+            "Para Rasul adalah penyampai risalah yang memberitakan tentang hakikat dan kepastian Hari Akhir.",
+            "Keimanan kepada Hari Akhir dapat dicapai secara mandiri tanpa memerlukan bimbingan para Rasul.",
+            "Rasul-rasul Allah memiliki wewenang penuh untuk menentukan waktu terjadinya Hari Kiamat kelak.",
+            "Iman kepada Rasul hanya berlaku di dunia, sedangkan iman kepada Hari Akhir berlaku di akhirat."
+        ],
+        answer: 0,
+        explanation: "Informasi mengenai gaibnya Hari Akhir disampaikan secara sah melalui wahyu yang dibawa para Rasul."
+    },
+    {
+        q: "10. Ketika seseorang menghadapi musibah berat berupa kehilangan harta benda, keimanan kepada Yaumul Jaza' (Hari Pembalasan) mencegahnya dari keputusasaan karena ia meyakini bahwa...",
+        options: [
+            "Setiap kesabaran atas ujian di dunia akan mendapatkan ganjaran pahala yang sempurna di akhirat.",
+            "Harta benda yang hilang akan langsung digantikan dengan jumlah yang lebih banyak di dunia.",
+            "Orang yang mengambil hartanya akan langsung dijatuhi hukuman fisik secara instan di dunia.",
+            "Musibah tersebut merupakan tanda bahwa Allah Swt. tidak lagi memperdulikan kehidupan dirinya."
+        ],
+        answer: 0,
+        explanation: "Yaumul Jaza' memberikan optimisme bahwa segala kesabaran atas musibah dibalas secara sempurna."
+    },
+    {
+        q: "11. Peristiwa bencana alam seperti gempa bumi dan tsunami dikategorikan sebagai Kiamat Sugra. Makna spiritual paling esensial dari terjadinya Kiamat Sugra bagi manusia yang masih hidup adalah...",
+        options: [
+            "Peringatan nyata agar manusia segera bertobat dan memperbaiki amalan sebelum kematian datang.",
+            "Sinyal bahwa seluruh kehidupan alam semesta telah berakhir dan memasuki alam akhirat.",
+            "Bukti bahwa teknologi manusia belum mampu memprediksi pergerakan lempeng bumi secara akurat.",
+            "Anjuran untuk memindahkan pemukiman ke daerah yang terbebas dari potensi bencana alam."
+        ],
+        answer: 0,
+        explanation: "Kiamat Sugra berfungsi sebagai pengingat kematian (*dzikrul maut*) agar manusia segera bertobat."
+    },
+    {
+        q: "12. Kematian seseorang merupakan Kiamat Sugra bagi individu tersebut. Implikasi filosofis dari pernyataan ini terhadap manajemen waktu seorang pelajar Muslim adalah...",
+        options: [
+            "Memanfaatkan setiap kesempatan waktu untuk belajar dan beramal saleh tanpa menunda-nunda lagi.",
+            "Menggunakan seluruh waktu harian untuk beribadah ritual tanpa perlu memikirkan masa depan.",
+            "Menghindari aktivitas fisik yang berisiko tinggi agar dapat memperpanjang usia kehidupan dunia.",
+            "Mengumpulkan materi sebanyak-banyaknya sebagai jaminan kesejahteraan hidup masa tua kelak."
+        ],
+        answer: 0,
+        explanation: "Kesadaran kiamat sugra pribadi mendorong efisiensi pengelolaan waktu untuk bekal akhirat."
+    },
+    {
+        q: "13. Maraknya fenomena disinformasi (fitnah), perebutan kemewahan, dan diabaikannya ilmu agama merupakan tanda-tanda kecil kiamat. Dampak sosio-religius jika masyarakat mengabaikan tanda-tanda ini adalah...",
+        options: [
+            "Terjadinya dekadensi moral dan krisis keteladanan yang merusak keharmonisan tatanan kehidupan sosial.",
+            "Meningkatnya pertumbuhan ekonomi global yang berorientasi pada kesejahteraan materialistik semata.",
+            "Munculnya kesadaran kolektif secara otomatis untuk kembali mengagungkan ajaran-ajaran keagamaan.",
+            "Terciptanya stabilitas politik dunia karena masyarakat lebih memfokuskan perhatian pada teknologi."
+        ],
+        answer: 0,
+        explanation: "Tanda kecil kiamat banyak berkaitan dengan krisis moral dan runtuhnya nilai sosial-keagamaan."
+    },
+    {
+        q: "14. Salah satu tanda kecil kiamat adalah 'amanah disia-siakan'. Contoh konkret penerapan pencegahan terhadap tanda kiamat ini dalam lingkup organisasi siswa di sekolah adalah...",
+        options: [
+            "Menjalankan tugas kepengurusan dengan jujur, transparan, dan penuh rasa tanggung jawab moral.",
+            "Menyerahkan seluruh keputusan organisasi kepada pembina tanpa melibatkan anggota pengurus lain.",
+            "Menggunakan dana kegiatan siswa untuk kepentingan pribadi dengan janji akan mengembalikannya.",
+            "Memilih ketua organisasi berdasarkan popularitas dan kekayaan tanpa melihat kompetensi dirinya."
+        ],
+        answer: 0,
+        explanation: "Menjaga amanah dalam jabatan organisasi merupakan wujud nyata mencegah pengabaian amanah."
+    },
+    {
+        q: "15. Munculnya Dajjal dan turunnya Nabi Isa a.s. merupakan tanda-tanda besar Kiamat Kubra. Perbedaan mendasar antara fungsi tanda kecil dan tanda besar Kiamat adalah...",
+        options: [
+            "Tanda kecil sebagai peringatan bertahap, sedangkan tanda besar menandakan fase akhir dunia.",
+            "Tanda kecil hanya dirasakan sebagian orang, sedangkan tanda besar hanya dirasakan umat Islam.",
+            "Tanda kecil berhubungan dengan alam, sedangkan tanda besar berhubungan dengan ekonomi dunia.",
+            "Tanda kecil dapat dihentikan oleh manusia, sedangkan tanda besar tidak dapat dihentikan."
+        ],
+        answer: 0,
+        explanation: "Tanda kecil terjadi berangsur sejak lama, sedangkan tanda besar terjadi berurutan mendekati hancurnya alam."
+    },
+    {
+        q: "16. Terbitnya matahari dari arah barat merupakan salah satu tanda besar Hari Kiamat. Konsekuensi teologis utama bagi kehidupan spiritual manusia saat tanda ini terjadi adalah...",
+        options: [
+            "Pintu pertobatan telah ditutup rapat sehingga amalan baru tidak lagi diterima oleh Allah.",
+            "Seluruh manusia di bumi secara otomatis langsung meninggal dunia tanpa proses rasa sakit.",
+            "Alam semesta mengalami penurunan suhu secara ekstrem yang memusnahkan seluruh pepohonan.",
+            "Ibadah salat harian berubah aturan teknis pelaksanaannya mengikuti arah pergerakan matahari."
+        ],
+        answer: 0,
+        explanation: "Terbitnya matahari dari barat adalah batas tertutupnya pintu tobat bagi seluruh manusia."
+    },
+    {
+        q: "17. Fenomena maraknya pembangunan gedung-gedung tinggi yang saling berlomba merupakan tanda kecil kiamat yang relevan saat ini. Kritik moral dari ajaran Islam terhadap fenomena tersebut adalah...",
+        options: [
+            "Pembangunan fisik sering kali mengabaikan keadilan distributif dan kesederhanaan gaya hidup.",
+            "Pembangunan gedung tinggi melanggar aturan tata ruang kota yang berorientasi lingkungan.",
+            "Kenaikan struktur bangunan menyebabkan keterbatasan lahan pertanian untuk masa depan umat.",
+            "Perlombaan kemewahan fisik melambangkan keunggulan peradaban manusia atas alam semesta."
+        ],
+        answer: 0,
+        explanation: "Islam mengkritik sikap sombong dan berlomba dalam kemewahan fisik yang mengabaikan kesederhanaan."
+    },
+    {
+        q: "18. Peristiwa tiupan sangkakala pertama oleh Malaikat Israfil menandai dimulainya Kiamat Kubra. Kondisi kosmis yang terjadi pada alam semesta saat peristiwa tersebut berlangsung adalah...",
+        options: [
+            "Kehancuran total seluruh tatanan alam semesta beserta kematian seluruh makhluk hidup.",
+            "Perubahan fungsi planet-planet menjadi tempat berkumpulnya seluruh jiwa manusia purba.",
+            "Penataan ulang tata surya agar dapat dihuni kembali oleh generasi manusia yang baru.",
+            "Penghentian putaran rotasi bumi tanpa merusak fasilitas dan bangunan yang ada di atasnya."
+        ],
+        answer: 0,
+        explanation: "Tiupan sangkakala pertama memusnahkan seluruh alam semesta beserta isinya."
+    },
+    {
+        q: "19. Di antara tanda-tanda besar kiamat adalah keluarnya Dabbatul Ardh (binatang melata). Peran utama dari Dabbatul Ardh menurut riwayat keagamaan adalah...",
+        options: [
+            "Membedakan dan memberikan tanda secara jelas antara orang yang beriman dan orang kafir.",
+            "Mengumpulkan seluruh manusia dari berbagai penjuru dunia untuk menuju ke Padang Mahsyar.",
+            "Menghancurkan benteng pertahanan musuh-musuh agama sebelum datangnya hari kebangkitan.",
+            "Menyebarkan sumber penyakit global yang memusnahkan populasi manusia di muka bumi."
+        ],
+        answer: 0,
+        explanation: "Dabbatul Ardh keluar untuk memberi tanda/stempel pembeda antara mukmin dan kafir."
+    },
+    {
+        q: "20. Banyak terjadi pembunuhan dan hilangnya rasa aman merupakan tanda kecil kiamat. Upaya prefentif yang dapat dilakukan oleh seorang pelajar dalam merespons fenomena ini adalah...",
+        options: [
+            "Menjauhi perilaku perundungan, mengendalikan emosi, dan membangun budaya kedamaian sekolah.",
+            "Mempelajari ilmu bela diri untuk melakukan pembalasan fisik terhadap orang yang membenci.",
+            "Mengisolasi diri dari interaksi sosial agar terhindar dari potensi konflik antar kelompok.",
+            "Meminta pihak kepolisian untuk menjaga lingkungan sekolah selama dua puluh empat jam."
+        ],
+        answer: 0,
+        explanation: "Mencegah pertikaian dimulai dari budaya anti-perundungan dan pengendalian emosi."
+    },
+    {
+        q: "21. Setelah manusia meninggal dunia, ia memasuki Alam Barzakh. Fungsi Alam Barzakh dalam jalur perjalanan kehidupan akhirat manusia adalah sebagai...",
+        options: [
+            "Alam transisi penantian tempat penerimaan balasan awal berupa nikmat atau siksa kubur.",
+            "Tempat pengadilan akhir untuk menentukan keputusan masuk ke dalam surga atau neraka.",
+            "Lokasi penyucian dosa secara total sebelum manusia dikumpulkan di area Padang Mahsyar.",
+            "Ruang penyesuaian diri agar jiwa manusia terbiasa dengan kondisi fisik kehidupan akhirat."
+        ],
+        answer: 0,
+        explanation: "Alam Barzakh adalah alam pembatas/penantian antara kehidupan dunia dan akhirat."
+    },
+    {
+        q: "22. Pada fase Yaumul Ba'ats, seluruh manusia dibangkitkan kembali dari alam kubur. Makna keadilan Allah Swt. yang terpancar dari proses kebangkitan massal ini adalah...",
+        options: [
+            "Mengembalikan seluruh manusia ke bentuk fisik semula untuk menerima pertanggungjawaban amalan.",
+            "Membedakan waktu kebangkitan berdasarkan tingkat status sosial dan kekayaan semasa hidup.",
+            "Membebaskan manusia dari pemeriksaan amalan jika ia meninggal dalam usia sangat muda.",
+            "Menjadikan kebangkitan sebagai sarana untuk memilih kembali pemimpin di alam akhirat."
+        ],
+        answer: 0,
+        explanation: "Kebangkitan mengembalikan manusia secara utuh untuk diadili dengan seadil-adilnya."
+    },
+    {
+        q: "23. Di Padang Mahsyar, manusia dikumpulkan dalam kondisi yang sangat memprihatinkan dan penuh kecemasan. Faktor tunggal yang dapat memberikan perlindungan dan naungan pada hari tersebut adalah...",
+        options: [
+            "Kualitas keimanan, ketakwaan, dan amalan kebajikan yang dikerjakan sewaktu hidup di dunia.",
+            "Jumlah sanak keluarga dan keturunan yang mendoakan dari tempat pemakaman di bumi.",
+            "Tingginya ilmu pengetahuan teknis yang berhasil ditemukan semasa menjadi akademisi.",
+            "Luasnya pengaruh kekuasaan politik yang pernah dimiliki saat menjadi pejabat publik."
+        ],
+        answer: 0,
+        explanation: "Naungan di Mahsyar diberikan berdasarkan kadar iman, amal saleh, dan keadilan sewaktu hidup."
+    },
+    {
+        q: "24. Pada tahap Yaumul Hisab, seluruh amalan manusia diperiksa dan dihitung secara sangat rinci. Keunggulan proses hisab Allah dibanding pengadilan duniawi adalah...",
+        options: [
+            "Kerincian mutlak tanpa ada satu pun amalan yang terlewatkan serta bebas dari manipulasi.",
+            "Adanya kesempatan untuk menyewa pembela guna memperkecil tingkat hukuman atas dosa.",
+            "Penggunaan saksi-saksi dari pihak keluarga untuk memberikan kesaksian yang meragukan.",
+            "Pengurangan hukuman dosa secara otomatis bagi manusia yang memiliki gelar akademik."
+        ],
+        answer: 0,
+        explanation: "Hisab Allah bersifat absolut, objektif, dan tidak dapat direkayasa oleh siapapun."
+    },
+    {
+        q: "25. Tahapan Mizan adalah proses penimbangan amalan baik dan amalan buruk. Pengaruh kesadaran akan tahap Mizan terhadap pembuatan keputusan moral seorang pelajar adalah...",
+        options: [
+            "Senantiasa berupaya meningkatkan bobot kualitas keikhlasan dalam setiap amalan kebaikan.",
+            "Menganggap rempah-rempah amalan kecil sebagai hal yang tidak memengaruhi hasil timbangan.",
+            "Memfokuskan perhatian pada kuantitas amalan tanpa peduli pada niat awal pembuatannya.",
+            "Mengandalkan amalan kebaikan orang tua untuk menutup kekurangan bobot timbangan pribadi."
+        ],
+        answer: 0,
+        explanation: "Mizan menimbang kualitas dan keikhlasan amal, bukan sekadar jumlah lahiriahnya."
+    },
+    {
+        q: "26. Shirath adalah jembatan yang terbentang di atas neraka menuju surga. Tingkat kecepatan dan keselamatan seseorang saat menyeberangi jembatan Shirath sangat bergantung pada...",
+        options: [
+            "Keteguhan iman serta kadar amalan saleh yang konsisten dikerjakan selama hidup di dunia.",
+            "Kecepatan fisik dan kelincahan olah raga yang sering dilatih sewaktu hidup di bumi.",
+            "Banyaknya harta benda yang telah disedekahkan meskipun tidak didasari rasa keikhlasan.",
+            "Keberuntungan nasib dan pertolongan spontan dari kawan-kawan seperjuangan di sekolah."
+        ],
+        answer: 0,
+        explanation: "Laju penyeberangan di atas Shirath merupakan visualisasi dari cahaya iman dan amal saleh."
+    },
+    {
+        q: "27. Mengapa surga dan neraka diletakkan pada tahapan paling akhir dari rangkaian kehidupan akhirat? Analisis penempatan tahapan ini yang paling tepat adalah...",
+        options: [
+            "Sebagai muara akhir pembalasan yang hakiki dan abadi sesuai dengan hasil proses pengadilan.",
+            "Memberikan kesempatan kepada manusia untuk memilih tempat tinggal sesuai dengan selera.",
+            "Menunjukkan bahwa keadilan Allah baru berlaku setelah manusia melewati semua jembatan.",
+            "Agar manusia dapat berpindah-pindah tempat tinggal antara surga dan neraka secara bebas."
+        ],
+        answer: 0,
+        explanation: "Surga dan neraka adalah vonis tempat tinggal abadi setelah melewati seluruh pengadilan akhirat."
+    },
+    {
+        q: "28. Saat proses Hisab berlangsung, anggota tubuh manusia seperti tangan dan kaki akan bersaksi, sementara mulut dikunci. Hikmah utama dari pembungkaman mulut pada fase ini adalah...",
+        options: [
+            "Menghindarkan kebohongan dan kesaksian palsu sehingga kebenaran amalan terungkap mutlak.",
+            "Mempercepat durasi waktu pengadilan agar seluruh manusia dapat segera memasuki surga.",
+            "Menunjukkan kelemahan fisik manusia di hadapan kekuasaan malaikat pemeriksa amalan.",
+            "Menguji kemampuan anggota tubuh dalam berkomunikasi tanpa menggunakan suara vokal."
+        ],
+        answer: 0,
+        explanation: "Mulut dikunci agar tidak ada dalih atau dusta; anggota tubuh bersaksi jujur atas perbuatannya."
+    },
+    {
+        q: "29. Seseorang memiliki amalan kebaikan yang banyak, tetapi ia sering menyakiti hati sesama dan berbuat zalim. Kondisi orang tersebut pada tahap Mizan menurut konsepsi Islam adalah...",
+        options: [
+            "Amalan kebaikannya akan tergerus untuk membayar kezalimannya hingga timbangannya menjadi ringan.",
+            "Amalan kebaikannya tetap utuh dan kezalimannya diampuni secara otomatis tanpa syarat.",
+            "Timbangan amalan kebaikannya dilipatgandakan untuk menutup seluruh dosa kezalimannya.",
+            "Orang tersebut langsung dimasukkan ke dalam surga tanpa perlu melewati proses penimbangan."
+        ],
+        answer: 0,
+        explanation: "Orang muflis (bangkrut) adalah orang yang membawa pahala tetapi habis dipakai membayar kezaliman sosialnya."
+    },
+    {
+        q: "30. Urutan tahapan akhirat yang benar setelah manusia dibangkitkan dari kubur (Yaumul Ba'ats) adalah...",
+        options: [
+            "Padang Mahsyar -> Hisab -> Mizan -> Shirath -> Surga/Neraka.",
+            "Padang Mahsyar -> Shirath -> Mizan -> Hisab -> Surga/Neraka.",
+            "Hisab -> Padang Mahsyar -> Mizan -> Shirath -> Surga/Neraka.",
+            "Mizan -> Hisab -> Padang Mahsyar -> Shirath -> Surga/Neraka."
+        ],
+        answer: 0,
+        explanation: "Urutan runtut: Ba'ats -> Mahsyar -> Hisab -> Mizan -> Shirath -> Surga/Neraka."
+    },
+    {
+        q: "31. Integrasi dimensi 'Cinta kepada Allah' dalam materi Hari Akhir mendorong seorang pelajar untuk rajin salat dan menjauhi maksiat. Motivasi utama di balik tindakan tersebut adalah...",
+        options: [
+            "Keinginan untuk meraih keridaan Allah dan keselamatan hakiki pada kehidupan akhirat.",
+            "Rasa takut akan hukuman fisik yang diberikan oleh orang tua dan guru di sekolah.",
+            "Harapan agar mendapatkan nilai mata pelajaran Pendidikan Agama Islam yang tinggi.",
+            "Keinginan untuk dianggap sebagai siswa yang paling alim oleh teman-teman di kelas."
+        ],
+        answer: 0,
+        explanation: "Cinta kepada Allah dilandasi niat ikhlas mencari rida-Nya dan keselamatan akhirat."
+    },
+    {
+        q: "32. Penerapan dimensi 'Cinta kepada Sesama' di lingkungan sekolah yang dilandasi keimanan kepada Hari Akhir adalah menolak perilaku mencontek saat ujian. Alasan teologis tindakan ini adalah...",
+        options: [
+            "Mencontek merupakan bentuk kecurangan yang melanggar kejujuran dan merugikan orang lain.",
+            "Mencontek dapat menyebabkan pembatalan nilai ujian oleh pihak pengawas sekolah.",
+            "Mencontek menurunkan rasa percaya diri dalam menguasai materi pelajaran sekolah.",
+            "Mencontek membutuhkan usaha yang lebih sulit dibanding mempelajari buku teks."
+        ],
+        answer: 0,
+        explanation: "Mencontek merusak integritas kejujuran yang kelak dipertanggungjawabkan di hadapan Allah."
+    },
+    {
+        q: "33. Dalam dimensi 'Cinta kepada Lingkungan', seorang siswa menghemat penggunaan air di sekolah karena meyakini Hari Akhir. Hubungan antara penghematan air dan pertanggungjawaban akhirat adalah...",
+        options: [
+            "Air merupakan amanah Allah yang penggunaannya akan dimintai pertanggungjawaban di akhirat.",
+            "Menghemat air mengurangi beban biaya operasional tagihan bulanan milik sekolah.",
+            "Air yang dihemat dapat dialirkan untuk kebutuhan masyarakat sekitar yang kekeringan.",
+            "Menghemat air merupakan syarat utama agar doa salat harian dapat dikabulkan Allah."
+        ],
+        answer: 0,
+        explanation: "Sumber daya alam adalah amanah Allah yang pemanfaatannya tidak boleh mubazir/dipertanyakan."
+    },
+    {
+        q: "34. Prinsip pembelajaran 'Mindful' menekankan kesadaran bahwa kehidupan dunia bersifat sementara. Sikap mental seorang siswa yang mencerminkan prinsip Mindful saat meraih kelulusan ujian adalah...",
+        options: [
+            "Bersyukur secara mendalam dan menjadikan kelulusan sebagai sarana meningkatkan ibadah.",
+            "Merayakan kelulusan dengan berkonvoi di jalan raya hingga mengganggu ketertiban umum.",
+            "Merasa bangga secara berlebihan karena keberhasilan tersebut mutlak hasil usahanya.",
+            "Menganggap keberhasilan akademik sebagai jaminan utama untuk sukses di alam akhirat."
+        ],
+        answer: 0,
+        explanation: "Kesadaran penuh (*mindful*) mengarahkan keberhasilan sebagai pemicu rasa syukur dan ibadah."
+    },
+    {
+        q: "35. Penerapan prinsip 'Meaningful' dalam kehidupan sehari-hari terlihat ketika seorang siswa menghubungkan konsep Hari Akhir dengan kepedulian sosial. Bentuk aksi nyata yang paling tepat adalah...",
+        options: [
+            "Menggalang dana bantuan untuk korban bencana alam atas dasar rasa empati dan iman.",
+            "Membicarakan keburukan orang lain yang tidak pernah bersedekah di media sosial.",
+            "Menyimpan seluruh uang saku untuk kebutuhan pribadi tanpa mau berbagi dengan kawan.",
+            "Menghafal seluruh nama-nama Hari Akhir hanya untuk menghadapi ujian semester sekolah."
+        ],
+        answer: 0,
+        explanation: "Pembelajaran bermakna (*meaningful*) mewujud pada aksi kepedulian sosial nyata di masyarakat."
+    },
+    {
+        q: "36. Seorang pelajar menemukan dompet berisi uang tunai dalam jumlah besar di koridor sekolah. Karena menerapkan hikmah iman kepada Hari Akhir (Cinta kepada Sesama), tindakan yang diambilnya adalah...",
+        options: [
+            "Menyerahkan dompet tersebut kepada guru piket untuk dikembalikan kepada pemilik sahnya.",
+            "Mengambil sebagian uang untuk disedekahkan dan mengembalikan sisanya ke guru.",
+            "Menyimpan dompet tersebut hingga ada orang yang mengumumkan kehilangan di kelas.",
+            "Membagikan uang tersebut kepada teman-teman terdekat yang membutuhkan bantuan."
+        ],
+        answer: 0,
+        explanation: "Mengembalikan barang temuan adalah wujud sifat amanah yang didasari rasa takut dosa akhirat."
+    },
+    {
+        q: "37. Mengapa pengrusakan fasilitas umum di sekolah dianggap bertentangan dengan keimanan kepada Hari Akhir berdasarkan dimensi Cinta kepada Lingkungan?",
+        options: [
+            "Karena merusak fasilitas umum merupakan tindakan zalim yang akan dihisab di akhirat.",
+            "Karena merusak fasilitas umum menyebabkan sekolah harus mengeluarkan biaya perbaikan.",
+            "Karena merusak fasilitas umum dapat mengakibatkan siswa mendapatkan sanksi skorsing.",
+            "Karena merusak fasilitas umum menurunkan estetika keindahan pemandangan sekolah."
+        ],
+        answer: 0,
+        explanation: "Fasilitas umum adalah milik bersama; merusaknya tergolong kezaliman sosial yang dihisab."
+    },
+    {
+        q: "38. Seseorang yang meyakini Hari Akhir akan memiliki sifat amanah ketika diberi tanggung jawab. Karakteristik utama orang yang amanah dalam kegiatan kelompok belajar adalah...",
+        options: [
+            "Menyelesaikan bagian tugas kelompok dengan sungguh-sungguh sesuai kesepakatan bersama.",
+            "Membiarkan anggota kelompok lain bekerja sambil mengambil kredit atas hasil akhir.",
+            "Mengerjakan seluruh tugas kelompok seorang diri agar mendapatkan pujian dari guru.",
+            "Memindahkan tugasnya kepada anggota lain yang dianggap memiliki kemampuan lebih."
+        ],
+        answer: 0,
+        explanation: "Sifat amanah tercermin dari komitmen menuntaskan kewajiban bagian tugas yang disepakati."
+    },
+    {
+        q: "39. Refleksi keimanan kepada Hari Akhir mendorong seseorang menjadi pribadi yang tidak mudah menyebarkan berita bohong (hoaks). Landasan teologis dari sikap pantang menyebar hoaks ini adalah...",
+        options: [
+            "Setiap kebohongan informasi yang disebarkan akan dimintai pertanggungjawaban di akhirat.",
+            "Berita hoaks dapat menurunkan reputasi diri sebagai pengguna media sosial aktif.",
+            "Pemerintah memiliki undang-undang cyber yang dapat memberikan sanksi penjara.",
+            "Menyebarkan hoaks membutuhkan kuota internet yang cukup banyak dan sia-sia."
+        ],
+        answer: 0,
+        explanation: "Menyebar fitnah/hoaks termasuk dosa lisan/tulisan yang akan diperhitungkan di hari hisab."
+    },
+    {
+        q: "40. Prinsip 'Joyful' dalam pembelajaran Hari Akhir mengarahkan keimanan sebagai sumber optimisme, bukan ketakutan yang melumpuhkan. Dampak positif dari prinsip Joyful ini bagi kesehatan mental pelajar adalah...",
+        options: [
+            "Menjalani hidup dengan tenang, penuh harapan akan rahmat Allah, dan semangat beramal.",
+            "Merasa bebas dari aturan moral karena yakin Allah Maha Pengampun atas semua dosa.",
+            "Mengabaikan bahaya dosa kecil karena menganggap amalan kebaikan pasti menang.",
+            "Merasa cemas secara terus-menerus hingga tidak berani melakukan aktivitas sosial."
+        ],
+        answer: 0,
+        explanation: "Prinsip joyful membangun pola pikir positif, tenang, dan semangat menabung pahala."
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let timer;
+let timeLeft = 60;
+let shuffledOptions = [];
+
+function startQuiz() {
+    document.getElementById('start-screen').classList.add('hide');
+    document.getElementById('quiz-screen').classList.remove('hide');
+    currentQuestion = 0;
+    score = 0;
+    loadQuestion();
+}
+
+function loadQuestion() {
+    clearInterval(timer);
+    timeLeft = 60;
+    document.getElementById('time-left').innerText = timeLeft;
+    document.getElementById('explanation-box').classList.add('hide');
+
+    const q = quizData[currentQuestion];
+    document.getElementById('question-number').innerText = `Soal ${currentQuestion + 1} / ${quizData.length}`;
+    document.getElementById('score-count').innerText = `Skor: ${Math.round(score)}`;
+    document.getElementById('question-text').innerText = q.q;
+    
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+
+    let optionsWithIndex = q.options.map((opt, idx) => ({ text: opt, originalIndex: idx }));
+    optionsWithIndex.sort(() => Math.random() - 0.5);
+    shuffledOptions = optionsWithIndex;
+
+    optionsWithIndex.forEach((optObj, idx) => {
+        const btn = document.createElement('button');
+        btn.classList.add('option-btn');
+        btn.innerText = optObj.text;
+        btn.onclick = () => selectOption(idx, optObj.originalIndex);
+        container.appendChild(btn);
+    });
+
+    document.getElementById('next-btn').disabled = true;
+
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('time-left').innerText = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            timeOut();
+        }
+    }, 1000);
+}
+
+function selectOption(selectedIndex, originalIndex) {
+    clearInterval(timer);
+    const q = quizData[currentQuestion];
+    const buttons = document.querySelectorAll('.option-btn');
+    
+    buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (shuffledOptions[idx].originalIndex === q.answer) {
+            btn.classList.add('correct');
+        }
+    });
+
+    if (originalIndex === q.answer) {
+        score += 2.5; // 40 soal x 2.5 = 100
+        document.getElementById('score-count').innerText = `Skor: ${Math.round(score)}`;
+    } else {
+        buttons[selectedIndex].classList.add('wrong');
+    }
+
+    showExplanation();
+}
+
+function timeOut() {
+    const q = quizData[currentQuestion];
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (shuffledOptions[idx].originalIndex === q.answer) {
+            btn.classList.add('correct');
+        }
+    });
+    showExplanation();
+}
+
+function showExplanation() {
+    const q = quizData[currentQuestion];
+    document.getElementById('explanation-text').innerText = q.explanation;
+    document.getElementById('explanation-box').classList.remove('hide');
+    document.getElementById('next-btn').disabled = false;
+}
+
+function nextQuestion() {
+    currentQuestion++;
+    if (currentQuestion < quizData.length) {
+        loadQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById('quiz-screen').classList.add('hide');
+    document.getElementById('result-screen').classList.remove('hide');
+    
+    document.getElementById('final-score').innerText = Math.round(score);
+    let message = score >= 80 ? "Sangat Luar Biasa! Pemahaman HOTS kamu sangat matang." : "Bagus! Terus tingkatkan pemahaman materi Hari Akhir.";
+    document.getElementById('result-message').innerText = message;
+}
+
+function toggleReview() {
+    const container = document.getElementById('review-container');
+    container.classList.toggle('hide');
+    if (!container.classList.contains('hide')) {
+        container.innerHTML = '<h3>📜 Pembahasan Lengkap Semua Soal:</h3>';
+        quizData.forEach((q, idx) => {
+            container.innerHTML += `
+                <div class="review-item">
+                    <b>Soal ${idx + 1}:</b> ${q.q}<br>
+                    <span style="color:#10b981; font-weight:bold;">Kunci Jawaban: ${q.options[q.answer]}</span><br>
+                    <small><b>Pembahasan:</b> ${q.explanation}</small>
+                </div>`;
+        });
+    }
+}
+
+function restartQuiz() {
+    document.getElementById('result-screen').classList.add('hide');
+    startQuiz();
+}
+</script>
+</body>
+</html>
