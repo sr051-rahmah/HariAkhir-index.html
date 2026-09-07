@@ -1,1 +1,1 @@
-# file-d-3A-INFORMATIKA-KUIS-20HTML-20HARI-20AKHIR-index.html
+#hariakhir-index.html
